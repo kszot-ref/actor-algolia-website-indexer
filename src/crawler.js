@@ -1,8 +1,5 @@
 const Apify = require('apify');
 const Promise = require('bluebird');
-const fs = require('fs');
-const vm = require('vm');
-const path = require('path');
 
 /**
  * This is default pageFunction. It can be overridden using pageFunction on input.
@@ -61,14 +58,6 @@ const setUpCrawler = async (input) => {
     }
     const pseudoUrlsUpdated = pseudoUrls.map(request => new Apify.PseudoUrl(request.purl));
 
-    // NOTE: This is for local runs purposes.
-    // You can override pageFunction with file pageFunction in same dir.
-    let localPageFunction;
-    if (!pageFunction && fs.existsSync(path.join(__dirname, 'page_function.js'))) {
-        console.log('Using local pageFunction!');
-        localPageFunction = require('./page_function.js');
-    }
-
     const crawler = new Apify.PuppeteerCrawler({
         requestQueue,
         handlePageFunction: async ({ request, page }) => {
@@ -81,10 +70,10 @@ const setUpCrawler = async (input) => {
             // Get results from the page
             let results;
             const pageFunctionContext = { page, request, selectors, requiredAttributes, Apify, requestQueue };
+
             if (pageFunction) {
-                results = await vm.runInThisContext(pageFunction)(pageFunctionContext);
-            } else if (localPageFunction) {
-                results = await localPageFunction(pageFunctionContext);
+                pageFunctionParsed = (new Function(`return ${pageFunction}`))();
+                results = await pageFunctionParsed(pageFunctionContext);
             } else {
                 results = await defaultPageFunction(pageFunctionContext);
             }

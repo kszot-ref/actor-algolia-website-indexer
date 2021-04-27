@@ -1,5 +1,5 @@
 const Apify = require('apify');
-const _ = require('underscore');
+const _ = require('lodash');
 const algoliasearch = require('algoliasearch');
 const algoliaIndex = require('./algolia_index');
 const { setUpCrawler } = require('./crawler');
@@ -8,10 +8,13 @@ Apify.main(async () => {
     const input = await Apify.getInput();
     const { algoliaAppId, algoliaIndexName, algoliaApiKey = process.env.ALGOLIA_API_KEY, skipIndexUpdate, crawlerName } = input;
 
+    console.log("Page Function:");
+    console.log(input.pageFunction)
+
     const algoliaClient = algoliasearch(algoliaAppId, algoliaApiKey);
     const algoliaSearchIndex = algoliaClient.initIndex(algoliaIndexName);
 
-    // Run crawler for teh website
+    // Run crawler for the website
     const crawler = await setUpCrawler(input);
     await crawler.run();
 
@@ -25,7 +28,7 @@ Apify.main(async () => {
     // Compare scraped pages with pages already saved to index and creates object with differences
     const pagesInIndex = await algoliaIndex.browseAll(algoliaSearchIndex, crawlerName);
     console.log(`There are ${pagesInIndex.length} pages in the index for ${crawlerName}.`);
-    const pagesIndexByUrl = _.indexBy(pagesInIndex, 'url');
+    const pagesIndexByUrl = _.keyBy(pagesInIndex, 'url');
 
     const pagesDiff = {
         pagesToAdd: {},
@@ -37,7 +40,7 @@ Apify.main(async () => {
     const uniqueDatasetResults = {};
     for (let offset = 0;offset < datasetInfo.itemCount; offset += limit) {
         const datasetResult = await dataset.getData({ clean: true, offset, limit });
-        Object.assign(uniqueDatasetResults, _.indexBy(datasetResult.items, 'url'));
+        Object.assign(uniqueDatasetResults, _.keyBy(datasetResult.items, 'url'));
     }
 
     Object.values(uniqueDatasetResults).forEach((page) => {

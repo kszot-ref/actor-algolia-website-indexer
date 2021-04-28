@@ -33,7 +33,7 @@ const browseAll = async (index, crawledBy) => {
     try {
         const result = await index.browseObjects({
             query: "",
-            filters: `crawledBy:${crawledBy}`,
+            filters: `crawledBy:"${crawledBy}"`,
             batch: batch => {
                 console.log("BATCH");
                 console.log(batch)

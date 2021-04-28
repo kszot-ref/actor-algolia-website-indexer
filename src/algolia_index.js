@@ -11,7 +11,10 @@ const browseAll = async (index, crawledBy) => {
     try {
         const result = await index.browseObjects({
             query: "",
-            // filters: `crawledBy:${crawledBy}`,
+            filters: `crawledBy:${crawledBy}`,
+            attributesForFaceting: [
+                "crawledBy"
+            ],
             batch: batch => {
                 items = items.concat(batch);
             }

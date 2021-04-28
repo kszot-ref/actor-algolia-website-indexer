@@ -28,8 +28,6 @@ Apify.main(async () => {
     // Compare scraped pages with pages already saved to index and creates object with differences
     const pagesInIndex = await algoliaIndex.browseAll(algoliaSearchIndex, crawlerName);
 
-    console.log("Pages in index");
-
     console.log(`There are ${pagesInIndex.length} pages in the index for ${crawlerName}.`);
     const pagesIndexByUrl = _.keyBy(pagesInIndex, 'url');
 

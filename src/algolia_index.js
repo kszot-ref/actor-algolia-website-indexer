@@ -4,45 +4,20 @@
  * @param crawledBy
  * @return {Promise<Array>}
  */
-// const browseAll = async (index, crawledBy) => {
-//     const browser = index.browseAll(null, { filters: `crawledBy:${crawledBy}` });
-//     let items = [];
-//     await new Promise((done, failed) => {
-//         browser.on('result', (content) => {
-//             // NOTE: In some cases filter param doesn't work ...
-//             const filteredItems = content.hits.filter(item => item.crawledBy === crawledBy);
-//             items = items.concat(filteredItems);
-//         });
-
-//         browser.on('end', () => {
-//             done('finished');
-//         });
-
-//         browser.on('error', (err) => {
-//             failed(err);
-//         });
-//     });
-
-//     return items;
-// };
-
 const browseAll = async (index, crawledBy) => {
     console.log("START BROWSE ALL");
 
     let items = [];
     try {
-        const result = await index.browseObjects({
+        await index.browseObjects({
             query: "",
             filters: `crawledBy:"${crawledBy}"`,
             batch: batch => {
-                console.log("BATCH");
-                console.log(batch)
                 items = items.concat(batch);
             }
         });
-        console.log(result);
-
         console.log("END BROWSE ALL");
+        console.log(items);
         return items;
     } catch (e) {
         console.error(e);
@@ -60,7 +35,7 @@ const update = async (index, pagesDiff) => {
     const pagesToAdd = Object.values(pagesDiff.pagesToAdd);
     if (pagesToAdd.length) {
         console.log(`Adding following pages to the index\n${pagesToAdd.map(page => page.url).join('\n')}`);
-        await index.addObjects(pagesToAdd);
+        await index.saveObjects(pagesToAdd, { autoGenerateObjectIDIfNotExist: true });
     }
 
     const pagesToUpdated = Object.values(pagesDiff.pagesToUpdate);

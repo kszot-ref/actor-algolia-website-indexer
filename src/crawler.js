@@ -42,7 +42,7 @@ const omitSearchParams = (req) => {
 const setUpCrawler = async (input) => {
     const { startUrls, additionalPageAttrs,
         omitSearchParamsFromUrl, clickableElements, pageFunction,
-        keepUrlFragment, waitForElement, pseudoUrls = [], crawlerName, requiredAttributes } = input;
+        keepUrlFragment, waitForElement, pseudoUrls = [], crawlerName, requiredAttributes, disableCrawlerCascade, listOfUrls } = input;
 
     // Transform selectors into key-value object
     let selectors = {};
@@ -51,11 +51,22 @@ const setUpCrawler = async (input) => {
     }
 
     const requestQueue = await Apify.openRequestQueue();
-    await Promise.map(startUrls, request => requestQueue.addRequest(request), { concurrency: 3 });
-
-    if (pseudoUrls.length === 0) {
-        startUrls.forEach(request => pseudoUrls.push({ purl: `${request.url}[.*]` }));
+    if (listOfUrls.length) {
+        await Promise.map(listOfUrls, request => requestQueue.addRequest(request), { concurrency: 3 });
+        if (pseudoUrls.length === 0) {
+            listOfUrls.forEach(request => {
+                pseudoUrls.push({ purl: `${request.url}[.*]`})
+            });
+        }
+    } else {
+        await Promise.map(startUrls, request => requestQueue.addRequest(request), { concurrency: 3 });
+        if (pseudoUrls.length === 0) {
+            startUrls.forEach(request => {
+                pseudoUrls.push({ purl: `${request.url}[.*]`})
+            });
+        }
     }
+    
     const pseudoUrlsUpdated = pseudoUrls.map(request => new Apify.PseudoUrl(request.purl));
 
     const crawler = new Apify.PuppeteerCrawler({
@@ -102,21 +113,23 @@ const setUpCrawler = async (input) => {
 
             await Apify.pushData(cleanResults);
 
-            // Enqueue following links
-            const enqueueLinksOpts = {
-                page,
-                selector: clickableElements || 'a',
-                pseudoUrls: pseudoUrlsUpdated,
-                requestQueue,
-            };
-            if (omitSearchParamsFromUrl) enqueueLinksOpts.transformRequestFunction = omitSearchParams;
-            if (keepUrlFragment) {
-                enqueueLinksOpts.transformRequestFunction = (request) => {
-                    request.keepUrlFragment = true;
-                    return request;
+            if (!disableCrawlerCascade) {
+                // Enqueue following links
+                const enqueueLinksOpts = {
+                    page,
+                    selector: clickableElements || 'a',
+                    pseudoUrls: pseudoUrlsUpdated,
+                    requestQueue,
                 };
+                if (omitSearchParamsFromUrl) enqueueLinksOpts.transformRequestFunction = omitSearchParams;
+                if (keepUrlFragment) {
+                    enqueueLinksOpts.transformRequestFunction = (request) => {
+                        request.keepUrlFragment = true;
+                        return request;
+                    };
+                }
+                await Apify.utils.enqueueLinks(enqueueLinksOpts);
             }
-            await Apify.utils.enqueueLinks(enqueueLinksOpts);
         },
         handleFailedRequestFunction: async ({ request }) => {
             console.log(`Request ${request.url} failed too many times`);

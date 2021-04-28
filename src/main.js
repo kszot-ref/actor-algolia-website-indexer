@@ -6,7 +6,7 @@ const { setUpCrawler } = require('./crawler');
 
 Apify.main(async () => {
     const input = await Apify.getInput();
-    const { algoliaAppId, algoliaIndexName, algoliaApiKey = process.env.ALGOLIA_API_KEY, skipIndexUpdate, crawlerName } = input;
+    const { algoliaAppId, algoliaIndexName, algoliaApiKey = process.env.ALGOLIA_API_KEY, skipIndexUpdate, crawlerName, listOfUrls } = input;
 
     console.log("Page Function:");
     console.log(input.pageFunction)
@@ -37,6 +37,10 @@ Apify.main(async () => {
         pagesToRemove: pagesIndexByUrl,
     };
 
+    if (listOfUrls.length) {
+        delete pagesDiff.pagesToRemove
+    }
+
     const limit = 10000;
     const uniqueDatasetResults = {};
     for (let offset = 0;offset < datasetInfo.itemCount; offset += limit) {
@@ -54,7 +58,9 @@ Apify.main(async () => {
         } else {
             pagesDiff.pagesToAdd[url] = page;
         }
-        delete pagesDiff.pagesToRemove[url];
+        if (pagesDiff.pagesToRemove) {
+            delete pagesDiff.pagesToRemove[url];
+        }
     });
 
     await Apify.setValue('OUTPUT', pagesDiff);

@@ -44,10 +44,12 @@ const update = async (index, pagesDiff) => {
         await index.saveObjects(pagesToUpdated);
     }
 
-    const pagesToRemove = Object.values(pagesDiff.pagesToRemove);
-    if (pagesToRemove.length) {
-        console.log(`Removing following pages in the index\n${pagesToRemove.map(page => page.url).join('\n')}`);
-        await index.deleteObjects(pagesToRemove.map(item => item.objectID));
+    if (pagesDiff.pagesToRemove) {
+        const pagesToRemove = Object.values(pagesDiff.pagesToRemove);
+        if (pagesToRemove.length) {
+            console.log(`Removing following pages in the index\n${pagesToRemove.map(page => page.url).join('\n')}`);
+            await index.deleteObjects(pagesToRemove.map(item => item.objectID));
+        }
     }
 };
 

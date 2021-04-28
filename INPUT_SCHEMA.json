@@ -79,6 +79,18 @@
       "description": "If check crawler will not update Algolia index.",
       "default": true
     },
+    "disableCrawlerCascade": {
+      "title": "Disable crawling links found on pages",
+      "type": "boolean",
+      "description": "Disable crawling links found on pages.",
+      "default": false
+    },
+    "listOfUrls": {
+      "title": "List of URLs to scan (ignore start URLs)",
+      "type": "array",
+      "description": "The list of urls to scan (ignore start URLs)",
+      "editor": "requestListSources"
+    },
     "pseudoUrls": {
       "sectionCaption": "Overrides defaults",
       "title": "Pseudo-URLs",

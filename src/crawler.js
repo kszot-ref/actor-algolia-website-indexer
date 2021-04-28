@@ -50,8 +50,6 @@ const setUpCrawler = async (input) => {
         input.selectors.forEach(selector => (selectors[selector.key] = selector.value))
     }
 
-    console.log(pseudoUrls)
-
     const requestQueue = await Apify.openRequestQueue();
     if (listOfUrls && listOfUrls.length) {
         await Promise.map(listOfUrls, request => requestQueue.addRequest(request), { concurrency: 3 });

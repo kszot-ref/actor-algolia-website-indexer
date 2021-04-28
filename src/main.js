@@ -8,9 +8,6 @@ Apify.main(async () => {
     const input = await Apify.getInput();
     const { algoliaAppId, algoliaIndexName, algoliaApiKey = process.env.ALGOLIA_API_KEY, skipIndexUpdate, crawlerName, listOfUrls } = input;
 
-    console.log("Page Function:");
-    console.log(input.pageFunction)
-
     const algoliaClient = algoliasearch(algoliaAppId, algoliaApiKey);
     const algoliaSearchIndex = algoliaClient.initIndex(algoliaIndexName);
     await algoliaSearchIndex.setSettings({

@@ -37,7 +37,7 @@ Apify.main(async () => {
         pagesToRemove: pagesIndexByUrl,
     };
 
-    if (listOfUrls.length) {
+    if (listOfUrls && listOfUrls.length) {
         delete pagesDiff.pagesToRemove
     }
 

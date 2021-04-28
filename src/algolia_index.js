@@ -27,6 +27,8 @@
 // };
 
 const browseAll = async (index, crawledBy) => {
+    console.log("START BROWSE ALL");
+
     let items = [];
     await index.browseObjects({
         query: "",
@@ -36,6 +38,7 @@ const browseAll = async (index, crawledBy) => {
         }
     });
 
+    console.log("END BROWSE ALL");
     return items;
 }
 

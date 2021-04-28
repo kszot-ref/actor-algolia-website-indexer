@@ -12,9 +12,6 @@ const browseAll = async (index, crawledBy) => {
         const result = await index.browseObjects({
             query: "",
             filters: `crawledBy:${crawledBy}`,
-            attributesForFaceting: [
-                "crawledBy"
-            ],
             batch: batch => {
                 items = items.concat(batch);
             }

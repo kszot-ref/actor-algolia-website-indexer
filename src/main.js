@@ -13,6 +13,11 @@ Apify.main(async () => {
 
     const algoliaClient = algoliasearch(algoliaAppId, algoliaApiKey);
     const algoliaSearchIndex = algoliaClient.initIndex(algoliaIndexName);
+    await algoliaSearchIndex.setSettings({
+        attributesForFaceting: [
+            "crawledBy"
+        ],
+    });
 
     // Run crawler for the website
     const crawler = await setUpCrawler(input);

@@ -30,16 +30,24 @@ const browseAll = async (index, crawledBy) => {
     console.log("START BROWSE ALL");
 
     let items = [];
-    await index.browseObjects({
-        query: "",
-        filters: `crawledBy:${crawledBy}`,
-        batch: batch => {
-            items = items.concat(batch);
-        }
-    });
+    try {
+        const result = await index.browseObjects({
+            query: "",
+            filters: `crawledBy:${crawledBy}`,
+            batch: batch => {
+                console.log("BATCH");
+                console.log(batch)
+                items = items.concat(batch);
+            }
+        });
+        console.log(result);
 
-    console.log("END BROWSE ALL");
-    return items;
+        console.log("END BROWSE ALL");
+        return items;
+    } catch (e) {
+        console.error(e);
+        return []
+    }
 }
 
 /**

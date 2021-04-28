@@ -5,20 +5,15 @@
  * @return {Promise<Array>}
  */
 const browseAll = async (index, crawledBy) => {
-    console.log("START BROWSE ALL");
-
     let items = [];
     try {
-        const result = await index.browseObjects({
+        await index.browseObjects({
             query: "",
             filters: `crawledBy:${crawledBy}`,
             batch: batch => {
                 items = items.concat(batch);
             }
         });
-        console.log(result)
-        console.log("END BROWSE ALL");
-        console.log(items);
         return items;
     } catch (e) {
         console.error(e);

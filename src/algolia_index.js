@@ -4,27 +4,40 @@
  * @param crawledBy
  * @return {Promise<Array>}
  */
+// const browseAll = async (index, crawledBy) => {
+//     const browser = index.browseAll(null, { filters: `crawledBy:${crawledBy}` });
+//     let items = [];
+//     await new Promise((done, failed) => {
+//         browser.on('result', (content) => {
+//             // NOTE: In some cases filter param doesn't work ...
+//             const filteredItems = content.hits.filter(item => item.crawledBy === crawledBy);
+//             items = items.concat(filteredItems);
+//         });
+
+//         browser.on('end', () => {
+//             done('finished');
+//         });
+
+//         browser.on('error', (err) => {
+//             failed(err);
+//         });
+//     });
+
+//     return items;
+// };
+
 const browseAll = async (index, crawledBy) => {
-    const browser = index.browseAll(null, { filters: `crawledBy:${crawledBy}` });
     let items = [];
-    await new Promise((done, failed) => {
-        browser.on('result', (content) => {
-            // NOTE: In some cases filter param doesn't work ...
-            const filteredItems = content.hits.filter(item => item.crawledBy === crawledBy);
-            items = items.concat(filteredItems);
-        });
-
-        browser.on('end', () => {
-            done('finished');
-        });
-
-        browser.on('error', (err) => {
-            failed(err);
-        });
+    await index.browseObjects({
+        query: "",
+        filters: `crawledBy:${crawledBy}`,
+        batch: batch => {
+            items = items.concat(batch);
+        }
     });
 
     return items;
-};
+}
 
 /**
  * Updates Algolia index regarding pagesDiff object.

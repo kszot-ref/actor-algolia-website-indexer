@@ -11,11 +11,15 @@ const browseAll = async (index, crawledBy) => {
     try {
         await index.browseObjects({
             query: "",
-            filters: `crawledBy:"${crawledBy}"`,
+            filters: `crawledBy:${crawledBy}`,
             batch: batch => {
                 items = items.concat(batch);
             }
         });
+        const withoutFilter = await index.browseObjects({
+            query: "",
+        });
+        console.log(withoutFilter);
         console.log("END BROWSE ALL");
         console.log(items);
         return items;
